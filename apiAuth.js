@@ -18,7 +18,7 @@ mongoose
   });
 
 const userSchema = new mongoose.Schema({
-    username: { type: String, required: true, unique: true},
+    username: { type: String, required: true},
     senha: { type: String, required: true}
 })
 
@@ -44,9 +44,10 @@ app.post('/signup', async (req, res) => {
     }
 
     const senhahash = await bcrypt.hash(senha, 10)
-    const user = new User({ username, senha: senhahash})
+    const usuario = new User({ username, senha: senhahash})
+    
     try {
-        await user.save();
+        await usuario.save();
         return res.status(201).json({ mensagem: 'Usuário criado com sucesso!' });
     } catch (error) {
         return res.status(500).json({ mensagem: 'Erro ao criar usuário', error });
@@ -65,11 +66,9 @@ app.post('/login', async (req, res) => {
     if (!certo) {
         return res.status(400).json({ message: 'Usuário ou senha inválidos.' });
     }
-        const token = jwt.sign({userId: 1}, process.env.JWT_SECRET, { expiresIn: 300 })
+        const token = jwt.sign({userId: 1}, process.env.JWT_SECRET, { expiresIn: 'ih' })
         return res.json({ auth: true, token})
 })
-
-
 
 app.get('/clima/:cidade', verifyJWT, async (req, res) => {
 console.log(req.userId + ' fez essa chamada') 

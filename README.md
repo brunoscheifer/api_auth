@@ -14,16 +14,52 @@ O Middleware será responsável por verificar o token enviado pelo cliente, gera
 
 # Funcionamento
 
+## Criação de conta
+
+```javascript
+app.post('/signup', async (req, res) => {
+    const {username, senha} = req.body
+
+    const jaexiste = await User.findOne({ username })
+    if(jaexiste) {
+        return res.status(400).json({ mensagem: 'Usuario ja existe!!'})
+    }
+
+    const senhahash = await bcrypt.hash(senha, 10)
+    const user = new User({ username, senha: senhahash})
+    try {
+        await user.save();
+        return res.status(201).json({ mensagem: 'Usuário criado com sucesso!' });
+    } catch (error) {
+        return res.status(500).json({ mensagem: 'Erro ao criar usuário', error });
+    }
+});
+```
+### Como funciona
+Ele começa falando que o usuario precisa colocar o usuario e senha no corpo da requisição no postman, depois crio uma variavel `jaexiste` que procura no banco de dados se existe um usuario com o mesmo nome se existir ele mostrará uma mensagem na resposta, depois ele olha a senha que voçê colocou no corpo e usa o `bcrypt` para mudar a senha para hash no banco de dados e depois adiciona no esquema e no banco e mostra uma mensagem se deu certo ou não.
+
+### No Postman
+
+![alt text](image-4.png)
+
+
 ## Geração de token
 
 ```javascript
-app.post('/login', (req, res) => {
-    if(req.body.user === 'eu' && req.body.senha === 'senha') {
-        const token = jwt.sign({userId: 1}, SECRET, { expiresIn: 300 })
-        return res.json({ auth: true, token})
+app.post('/login', async (req, res) => {
+    const { username, senha } = req.body
+
+    const user = await User.findOne({ username })
+    if (!user) {
+        return res.status(400).json({ mensagem: 'Usuario ou senha invalidos!'})
     }
 
-    res.status(401).end()
+    const certo = await bcrypt.compare(senha, user.senha)
+    if (!certo) {
+        return res.status(400).json({ message: 'Usuário ou senha inválidos.' });
+    }
+        const token = jwt.sign({userId: 1}, process.env.JWT_SECRET, { expiresIn: 300 })
+        return res.json({ auth: true, token})
 })
 ```
 ### Como funciona
