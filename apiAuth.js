@@ -18,7 +18,7 @@ mongoose
   });
 
 const userSchema = new mongoose.Schema({
-    username: { type: String, required: true},
+    username: { type: String, required: true, unique: true},
     senha: { type: String, required: true}
 })
 
@@ -36,21 +36,27 @@ function verifyJWT(req, res, next) {
 }
 
 app.post('/signup', async (req, res) => {
-    const {username, senha} = req.body
+    const { username, senha } = req.body;
 
-    const jaexiste = await User.findOne({ username })
-    if(jaexiste) {
-        return res.status(400).json({ mensagem: 'Usuario ja existe!!'})
+    // Validação de entrada
+    if (!username || !senha) {
+        return res.status(400).json({ mensagem: 'Username e senha são obrigatórios.' });
     }
 
-    const senhahash = await bcrypt.hash(senha, 10)
-    const usuario = new User({ username, senha: senhahash})
-    
     try {
+        const jaexiste = await User.findOne({ username });
+        if (jaexiste) {
+            return res.status(400).json({ mensagem: 'Usuário já existe!' });
+        }
+
+        const senhahash = await bcrypt.hash(senha, 10);
+        const usuario = new User({ username, senha: senhahash });
+
         await usuario.save();
         return res.status(201).json({ mensagem: 'Usuário criado com sucesso!' });
     } catch (error) {
-        return res.status(500).json({ mensagem: 'Erro ao criar usuário', error });
+        console.error("Erro ao salvar usuário:", error); // Log do erro
+        return res.status(500).json({ mensagem: 'Erro ao criar usuário', error: error.message });
     }
 });
 
@@ -66,7 +72,7 @@ app.post('/login', async (req, res) => {
     if (!certo) {
         return res.status(400).json({ message: 'Usuário ou senha inválidos.' });
     }
-        const token = jwt.sign({userId: 1}, process.env.JWT_SECRET, { expiresIn: 'ih' })
+        const token = jwt.sign({username: user.username}, process.env.JWT_SECRET, { expiresIn: '1h' })
         return res.json({ auth: true, token})
 })
 
