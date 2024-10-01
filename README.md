@@ -30,6 +30,10 @@ app.post('/login', (req, res) => {
 
 Ao dar post na rota /login no postman o programa verifica se dentro do body tem as informaçãoes do usuario se essas informações estiverem corretas ele cria um token usando `jwt.sign` com parametros `userId` que ele coloca esse ID no token que ira ser criado para maior segurança, o `SECRET` será a senha usada para assinatura digital que esta quardada em uma variavel no começo do código, e `expiresIn` que será uma medida de seguraça que fará o token não funcionar depois de 5 minutos, e finalmente ele ira retornar ao usuario o token criado e o id do usuario que tem esse token.
 
+### No Postman
+
+![alt text](image.png)
+
 ## Middleware de Verificação de token
 
 ```javascript
