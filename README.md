@@ -52,3 +52,13 @@ function verifyJWT(req, res, next) {
 ### Como funciona
 
 Nessa função `verifyJWT` com parametros `(req, res, next)` ela verifica se uma rota precisa de um token pra funcionar e manda um erro se não funcionar, primeiramente eu crio uma variavel que verifica se o token está adicionada aos headers do postman, depois é usado a função `jwt.verify` para ver se o token está certo e não foi mexido, se acontecer isso o codigo manda o postman negar o uso da rota. Ao colocar essa funcão na requição da rota desse jeito `app.get('/clima/:cidade', verifyJWT, async (req, res) => {` ele verifica as informaçoes como descrito acima.
+
+## Rota Protegida
+
+### Sem Token Adicionado
+
+![alt text](image-2.png)
+
+### Com Token Adicionado
+
+![alt text](image-3.png)
